@@ -1,0 +1,32 @@
+.x-panel-body-default {
+    font-size: 12px !important;
+}
+
+.x-panel-header-default {
+    font-size: 12px !important;
+}
+
+.x-panel-header-default
+.x-panel-header-text-container-default {
+    font-size: 12px !important;
+}
+
+label {
+    font-size: 12px !important;
+}
+
+.x-btn-inner {
+    font-size: 12px !important;
+}
+
+.x-tree-node-text {
+    font-size: 12px !important;
+}
+
+.x-grid-cell {
+    font-size: 12px !important;
+}
+
+.x-column-header {
+    font-size: 12px !important;
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/extjs/4.2.1.883/resources/css/ext-all.css"/>
+    <link rel="stylesheet" type="text/css" href="custom.css"/>
+    <script type="text/javascript" src="/webjars/extjs/4.2.1.883/ext-all.js"></script>
+</head>
+
+<body>
+
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+Ext.onReady(function () {
+
+    Ext.define('SvnModel', {
+        extend: 'Ext.data.Model',
+        fields: [
+            {name: 'id', type: 'string'},
+            {name: 'text', type: 'string'},
+            {name: 'revision', type: 'string'},
+            {name: 'author', type: 'string'},
+            {name: 'leaf', type: 'bool'},
+            {name: 'date', type: 'date', dateFormat: 'time'}
+        ],
+        idProperty: 'id'
+
+    });
+
+    var svnStore = Ext.create('Ext.data.TreeStore', {
+        model: 'SvnModel',
+        proxy: {
+            type: 'ajax',
+            url: 'nodes'
+        },
+        folderSort: true,
+        autoLoad: false,
+        expanded: false,
+        root: {
+            text: '/',
+            expanded: true,
+            id: "/"
+        }
+    });
+
+    var repoStore = Ext.create('Ext.data.Store', {
+        fields: ['url'],
+        proxy: {
+            type: 'ajax',
+            url: 'repositories'
+        }
+    });
+
+    repoStore.load();
+
+    var repoPanel = Ext.create('Ext.grid.Panel', {
+        store: repoStore,
+        columns: [
+            {
+                dataIndex: 'url',
+                flex: 1
+            }
+        ],
+        title: 'Repositories',
+        renderTo: Ext.getBody(),
+        region: 'west',
+        width: '25%',
+        hideHeaders: true,
+        multiSelect: true,
+        listeners: {
+            itemdblclick: function (dv, record, item, index, e) {
+                var repo = repoStore.getAt(index).data.url;
+                setRepository(repo, null);
+            }
+        }
+    });
+
+    repoPanel.getEl().addKeyMap({
+        eventName: "keyup",
+        binding: [
+            {
+                key: Ext.EventObject.DELETE,
+                fn: function () {
+                    deleteSelectedRepos();
+                }
+            }
+        ]
+    });
+
+    var menuLocalTree = new Ext.menu.Menu({
+        items: [
+            {
+                text: 'Delete',
+                handler: function () {
+                    deleteSelectedRepos();
+                }
+            },
+            {
+                text: 'Edit',
+                handler: function () {
+                    var nodes = repoPanel.getSelectionModel().selected.items;
+                    if (nodes.length > 1) {
+                        return;
+                    }
+                    var node = nodes[0];
+                    var path = node.data.url;
+                    Ext.Msg.prompt('Edit', 'Repository url:', function (btn, text) {
+                        if (btn == 'ok') {
+                            var trimmed = text.trim();
+                            if (trimmed == "") {
+                                return;
+                            }
+                            Ext.Ajax.request({
+                                url: 'editRepository',
+                                params: {
+                                    oldUrl: path,
+                                    newUrl: trimmed
+                                },
+                                success: function (response, opts) {
+                                    repoStore.load();
+                                },
+                                failure: function (response, opts) {
+                                    repoStore.load();
+                                }
+                            });
+                        }
+                    }, this, false, path);
+                }
+            },
+        ]
+    });
+
+    var menuBranches = new Ext.menu.Menu({
+        items: [
+            {
+                text: 'Copy Path',
+                handler: function () {
+                    var nodes = rightPanel.getSelectionModel().selected.items;
+                    if (nodes.length != 1) {
+                        return;
+                    }
+                    var path = nodes[0].getPath("text");
+                    Ext.Ajax.request({
+                        url: 'copyPath',
+                        timeout: 1000000,
+                        params: {
+                            path: path
+                        },
+                        success: function (response, opts) {
+                        },
+                        failure: function (response, opts) {
+                        }
+                    });
+                }
+            }
+        ]
+    });
+
+    function deleteSelectedRepos() {
+        var nodes = repoPanel.getSelectionModel().selected.items;
+        var repositories = new Array();
+        for (var i = 0; i < nodes.length; i++) {
+            repositories.push(nodes[i].data.url)
+        }
+        Ext.Ajax.request({
+            url: 'deleteRepositories',
+            params: {
+                repositories: repositories
+            },
+            success: function (response, opts) {
+                repoPanel.store.remove(nodes)
+            },
+            failure: function (response, opts) {
+                repoStore.load();
+            }
+        });
+    }
+
+    repoPanel.on('itemcontextmenu', function (view, record, item, index, event) {
+        var nodes = repoPanel.getSelectionModel().selected.items;
+        menuLocalTree.showAt(event.getXY());
+        event.stopEvent();
+    }, this);
+
+    function setRepository(repository, password) {
+        Ext.Ajax.request({
+            url: 'setRepository',
+            timeout: 1000000,
+            params: {
+                repository: repository,
+                password: password
+            },
+            success: function (response, opts) {
+                var jsonData = Ext.JSON.decode(response.responseText);
+                if (jsonData['badCredentials']) {
+                    var myMsgBox = new Ext.window.MessageBox();
+                    myMsgBox.textField.inputType = 'password';
+                    myMsgBox.prompt('Bad Password', 'Password', function (btn, text) {
+                                if (btn == 'ok') {
+                                    setRepository(repository, text)
+                                }
+                            }
+                    );
+                } else {
+                    var node = svnStore.getNodeById("/");
+                    if (node) {
+                        svnStore.load({node: node});
+                    }
+                }
+            },
+            failure: function (response, opts) {
+            }
+        })
+        ;
+    }
+
+    function newRepository(repository) {
+        Ext.Ajax.request({
+            url: 'newRepository',
+            timeout: 1000000,
+            params: {
+                repository: repository
+            },
+            success: function (response, opts) {
+                repoStore.load();
+                setRepository(repository, null);
+            },
+            failure: function (response, opts) {
+            }
+        });
+    }
+
+    var rightPanel = Ext.create('Ext.tree.Panel', {
+        title: 'Tree',
+        renderTo: Ext.getBody(),
+        collapsible: false,
+        useArrows: true,
+        rootVisible: false,
+        store: svnStore,
+        multiSelect: false,
+        columns: [
+            {
+                xtype: 'treecolumn',
+                text: 'Path',
+                flex: 2,
+                sortable: true,
+                dataIndex: 'text'
+            },
+            {
+                text: 'Author',
+                flex: 1,
+                dataIndex: 'author',
+                sortable: true
+            },
+            {
+                xtype: 'datecolumn',
+                dataIndex: 'date',
+                flex: 1,
+                header: 'Date',
+                sortable: true,
+                format: 'd/m/Y H:i'
+            },
+            {
+                text: 'Revision',
+                dataIndex: 'revision',
+                sortable: true
+            }
+        ],
+        region: 'center'
+    });
+
+    rightPanel.on('itemcontextmenu', function (view, record, item, index, event) {
+        var nodes = rightPanel.getSelectionModel().selected.items;
+        menuBranches.showAt(event.getXY());
+        event.stopEvent();
+    }, this);
+
+    new Ext.Viewport({
+        renderTo: document.body,
+        layout: 'border',
+        defaults: {
+            split: true,
+            floatable: false
+        },
+        items: [
+            {
+                region: 'north',
+                border: false,
+                split: false,
+                defaults: {
+                    xtype: 'textfield',
+                    anchor: '100%'
+                },
+                tbar: [
+                    {
+                        text: 'New Connection',
+                        id: 'btnConnect',
+                        formBind: true,
+                        style: 'background-color: #D5E2F2;border:1px solid #A9BFD3;vertical-align:middle;padding: 2px;',
+                        handler: function () {
+                            Ext.Msg.prompt('New Repository', 'Please enter repository url:', function (btn, text) {
+                                if (btn == 'ok' && text) {
+                                    newRepository(text)
+                                }
+                            });
+
+                        }
+                    }
+                ]
+            },
+            repoPanel,
+            rightPanel
+        ]
+    });
+    Ext.getBody().on("contextmenu", Ext.emptyFn, null, {preventDefault: true});
+})
+/*]]>*/
+</script>
+
+</body>
+
+</html>
