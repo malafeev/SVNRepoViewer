@@ -4,7 +4,7 @@ Java based svn repository viewer.
 
 It runs on embedded Tomcat server and uses JavaFX browser to access UI.
 
-Can be also accessed via "http://localhost:<port>" 
+Can be also accessed via "http://localhost:\<port\>" 
 To specify port should be used -p option. If not specified then random free port is used.
 
 ## Building from Source
