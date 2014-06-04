@@ -38,7 +38,7 @@ public class SVNApplication {
         return factory;
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws InterruptedException {
         parseCLI(args);
         ConfigurableApplicationContext context = SpringApplication.run(SVNApplication.class, args);
         Main.main(new String[]{port + ""});

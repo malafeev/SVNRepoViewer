@@ -18,7 +18,7 @@ public class ConfigDaoTest {
 
 
     @Test
-    public void testAddAndGetRepositories() throws Exception {
+    public void testAddAndGetRepositories() {
         assertFalse(configDao.addRepository(null));
 
         Repository repository = new Repository();

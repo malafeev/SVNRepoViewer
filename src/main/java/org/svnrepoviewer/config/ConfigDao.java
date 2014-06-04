@@ -32,7 +32,7 @@ public class ConfigDao {
             try {
                 Files.createParentDirs(configFile);
             } catch (IOException e) {
-                logger.error("cannot create dir: {}", configFile.getParentFile().getAbsolutePath());
+                logger.error("cannot create dir: {}", configFile.getParentFile().getAbsolutePath(), e);
             }
         }
         if (config == null) {

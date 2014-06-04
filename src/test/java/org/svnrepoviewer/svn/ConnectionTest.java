@@ -15,7 +15,7 @@ public class ConnectionTest {
     }
 
     @Test
-    public void testConnect() throws Exception {
+    public void testConnect() {
         assertFalse(connection.isConnected());
 
         connection.connect(null, null);

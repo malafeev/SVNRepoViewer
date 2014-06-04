@@ -22,7 +22,7 @@ import javafx.scene.input.ClipboardContent;
 
 @RestController
 public class SVNRestController {
-    private static final String produceType = "application/json;charset=UTF-8";
+    private static final String PRODUCE_TYPE = "application/json;charset=UTF-8";
     @Autowired
     private Connection connection;
     @Autowired
@@ -31,7 +31,7 @@ public class SVNRestController {
 
 
     @ResponseBody
-    @RequestMapping(value = "/nodes", method = RequestMethod.GET, produces = produceType)
+    @RequestMapping(value = "/nodes", method = RequestMethod.GET, produces = PRODUCE_TYPE)
     public List<Node> get(@RequestParam String node) {
         if (!connection.isConnected()) {
             return new ArrayList<>();
@@ -40,13 +40,13 @@ public class SVNRestController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/repositories", method = RequestMethod.GET, produces = produceType)
+    @RequestMapping(value = "/repositories", method = RequestMethod.GET, produces = PRODUCE_TYPE)
     public Set<Repository> getRepositories() {
         return configDao.getRepositories();
     }
 
     @ResponseBody
-    @RequestMapping(value = "/setRepository", method = RequestMethod.POST, produces = produceType)
+    @RequestMapping(value = "/setRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public ConnectionState setRepository(@RequestParam("repository") String repoUrl, @RequestParam("password") String password) {
         Repository repository = new Repository();
         repository.setUrl(repoUrl);
@@ -54,7 +54,7 @@ public class SVNRestController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/newRepository", method = RequestMethod.POST, produces = produceType)
+    @RequestMapping(value = "/newRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void newRepository(@RequestParam("repository") String repoUrl) {
         if (repoUrl.trim().isEmpty()) {
             return;
@@ -67,14 +67,14 @@ public class SVNRestController {
     }
 
     @ResponseBody
-    @RequestMapping(value = "/editRepository", method = RequestMethod.POST, produces = produceType)
+    @RequestMapping(value = "/editRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void editRepository(@RequestParam("oldUrl") String oldUrl, @RequestParam("newUrl") String newUrl) {
         Repository repository = configDao.findRepositoriesByUrl(oldUrl);
         repository.setUrl(newUrl);
         configDao.save();
     }
 
-    @RequestMapping(value = "deleteRepositories", method = RequestMethod.POST, produces = produceType)
+    @RequestMapping(value = "deleteRepositories", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void deleteRepositories(@RequestParam("repositories") String[] repoUrls) {
         for (String repoUrl : repoUrls) {
             configDao.deleteRepositoryByUrl(repoUrl);
@@ -82,7 +82,7 @@ public class SVNRestController {
         configDao.save();
     }
 
-    @RequestMapping(value = "copyPath", method = RequestMethod.POST, produces = produceType)
+    @RequestMapping(value = "copyPath", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void copyPath(@RequestParam("path") String path) {
         String fullPath = connection.getRepoUrl() + path.replaceAll("/[/]+", "/");
         Platform.runLater(() -> {

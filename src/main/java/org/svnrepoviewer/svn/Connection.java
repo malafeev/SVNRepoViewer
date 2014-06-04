@@ -56,7 +56,7 @@ public class Connection {
         try {
             String repoRoot = repository.getRepositoryRoot(true).toString();
             repoRootUrl = repoUrl.replace(repoRoot, "");
-        } catch (SVNAuthenticationException e) {
+        } catch (SVNAuthenticationException ignore) {
             connectionState.setBadCredentials(true);
             return connectionState;
         } catch (SVNException e) {

@@ -12,7 +12,6 @@
 
 <body>
 
-
 <script th:inline="javascript">
 /*<![CDATA[*/
 Ext.onReady(function () {
@@ -149,10 +148,6 @@ Ext.onReady(function () {
                         timeout: 1000000,
                         params: {
                             path: path
-                        },
-                        success: function (response, opts) {
-                        },
-                        failure: function (response, opts) {
                         }
                     });
                 }
@@ -211,11 +206,8 @@ Ext.onReady(function () {
                         svnStore.load({node: node});
                     }
                 }
-            },
-            failure: function (response, opts) {
             }
-        })
-        ;
+        });
     }
 
     function newRepository(repository) {
@@ -228,8 +220,6 @@ Ext.onReady(function () {
             success: function (response, opts) {
                 repoStore.load();
                 setRepository(repository, null);
-            },
-            failure: function (response, opts) {
             }
         });
     }
@@ -280,12 +270,13 @@ Ext.onReady(function () {
     }, this);
 
     new Ext.Viewport({
-        renderTo: document.body,
+        renderTo: Ext.getBody(),
         layout: 'border',
         defaults: {
             split: true,
             floatable: false
         },
+        padding: "3 3 3 3",
         items: [
             {
                 region: 'north',
@@ -317,7 +308,7 @@ Ext.onReady(function () {
         ]
     });
     Ext.getBody().on("contextmenu", Ext.emptyFn, null, {preventDefault: true});
-})
+});
 /*]]>*/
 </script>
 
