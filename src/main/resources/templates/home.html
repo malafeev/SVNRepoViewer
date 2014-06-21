@@ -5,6 +5,12 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <!--link rel="stylesheet" type="text/css"
+          href="/webjars/extjs/5.0.0/build/packages/ext-theme-classic/build/resources/ext-theme-classic-all.css"/>
+    <link rel="stylesheet" type="text/css" href="custom.css"/>
+    <script type="text/javascript" src="/webjars/extjs/5.0.0/build/ext-all.js"></script-->
+
     <link rel="stylesheet" type="text/css" href="/webjars/extjs/4.2.1.883/resources/css/ext-all.css"/>
     <link rel="stylesheet" type="text/css" href="custom.css"/>
     <script type="text/javascript" src="/webjars/extjs/4.2.1.883/ext-all.js"></script>
@@ -82,6 +88,7 @@ Ext.onReady(function () {
         eventName: "keyup",
         binding: [
             {
+                //key: Ext.event.Event.DELETE, //ExtJS 5
                 key: Ext.EventObject.DELETE,
                 fn: function () {
                     deleteSelectedRepos();
