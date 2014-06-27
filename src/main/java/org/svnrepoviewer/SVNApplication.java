@@ -53,6 +53,7 @@ public class SVNApplication {
         Options options = new Options();
         options.addOption("p", "port", true, "port number");
         options.addOption("q", "quiet", false, "don't open JavaFX browser");
+        options.addOption("h", "help", false, "help");
 
         CommandLineParser parser = new PosixParser();
         CommandLine cmd = null;
@@ -62,6 +63,11 @@ public class SVNApplication {
             logger.error(e.getMessage());
             printUsage(options);
             System.exit(-1);
+        }
+
+        if (cmd.hasOption("h")) {
+            printUsage(options);
+            System.exit(0);
         }
 
         String portStr = cmd.getOptionValue("p");
