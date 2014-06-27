@@ -27,8 +27,9 @@ import org.svnrepoviewer.fx.Main;
 @ComponentScan
 @EnableAutoConfiguration
 public class SVNApplication {
-    private static final Logger logger = LoggerFactory.getLogger(SVNApplication.class);
+    private static final Logger logger = LoggerFactory.getLogger("stdout");
     private static int port;
+    private static boolean quiet;
 
     @Bean
     public EmbeddedServletContainerFactory servletContainer() {
@@ -41,37 +42,45 @@ public class SVNApplication {
     public static void main(String[] args) throws InterruptedException {
         parseCLI(args);
         ConfigurableApplicationContext context = SpringApplication.run(SVNApplication.class, args);
-        Main.main(new String[]{port + ""});
-        context.close();
+        logger.info("started server on port {}", port);
+        if (!quiet) {
+            Main.main(new String[]{String.valueOf(port)});
+            context.close();
+        }
     }
 
     private static void parseCLI(String[] args) {
         Options options = new Options();
         options.addOption("p", "port", true, "port number");
+        options.addOption("q", "quiet", false, "don't open JavaFX browser");
 
         CommandLineParser parser = new PosixParser();
+        CommandLine cmd = null;
         try {
-            CommandLine cmd = parser.parse(options, args);
-            String portStr = cmd.getOptionValue("p");
-            if (portStr != null) {
-                try {
-                    port = Integer.parseInt(portStr);
-                } catch (NumberFormatException e) {
-                    logger.error("cannot parse port {}", portStr);
-                    System.exit(-1);
-                }
-                if (port < 1 || port > 65534) {
-                    logger.error("port should be in range [1, 65534]");
-                    System.exit(-1);
-                }
-            } else {
-                port = findFreePort();
-            }
+            cmd = parser.parse(options, args);
         } catch (ParseException e) {
             logger.error(e.getMessage());
             printUsage(options);
             System.exit(-1);
         }
+
+        String portStr = cmd.getOptionValue("p");
+        if (portStr != null) {
+            try {
+                port = Integer.parseInt(portStr);
+            } catch (NumberFormatException e) {
+                logger.error("cannot parse port {}", portStr);
+                System.exit(-1);
+            }
+            if (port < 1 || port > 65534) {
+                logger.error("port should be in range [1, 65534]");
+                System.exit(-1);
+            }
+        } else {
+            port = findFreePort();
+        }
+
+        quiet = cmd.hasOption("q");
     }
 
     private static int findFreePort() {
