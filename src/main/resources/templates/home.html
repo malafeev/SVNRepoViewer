@@ -23,58 +23,58 @@
 /*<![CDATA[*/
 Ext.onReady(function () {
 
-    Ext.define('SvnModel', {
-        extend: 'Ext.data.Model',
+    Ext.define("SvnModel", {
+        extend: "Ext.data.Model",
         fields: [
-            {name: 'id', type: 'string'},
-            {name: 'text', type: 'string'},
-            {name: 'revision', type: 'string'},
-            {name: 'author', type: 'string'},
-            {name: 'leaf', type: 'bool'},
-            {name: 'date', type: 'date', dateFormat: 'time'}
+            {name: "id", type: "string"},
+            {name: "text", type: "string"},
+            {name: "revision", type: "string"},
+            {name: "author", type: "string"},
+            {name: "leaf", type: "bool"},
+            {name: "date", type: "date", dateFormat: "time"}
         ],
-        idProperty: 'id'
+        idProperty: "id"
 
     });
 
-    var svnStore = Ext.create('Ext.data.TreeStore', {
-        model: 'SvnModel',
+    var svnStore = Ext.create("Ext.data.TreeStore", {
+        model: "SvnModel",
         proxy: {
-            type: 'ajax',
-            url: 'nodes'
+            type: "ajax",
+            url: "nodes"
         },
         folderSort: true,
         autoLoad: false,
         expanded: false,
         root: {
-            text: '/',
+            text: "/",
             expanded: true,
             id: "/"
         }
     });
 
-    var repoStore = Ext.create('Ext.data.Store', {
-        fields: ['url'],
+    var repoStore = Ext.create("Ext.data.Store", {
+        fields: ["url"],
         proxy: {
-            type: 'ajax',
-            url: 'repositories'
+            type: "ajax",
+            url: "repositories"
         }
     });
 
     repoStore.load();
 
-    var repoPanel = Ext.create('Ext.grid.Panel', {
+    var repoPanel = Ext.create("Ext.grid.Panel", {
         store: repoStore,
         columns: [
             {
-                dataIndex: 'url',
+                dataIndex: "url",
                 flex: 1
             }
         ],
-        title: 'Repositories',
+        title: "Repositories",
         renderTo: Ext.getBody(),
-        region: 'west',
-        width: '25%',
+        region: "west",
+        width: "25%",
         hideHeaders: true,
         multiSelect: true,
         listeners: {
@@ -98,16 +98,16 @@ Ext.onReady(function () {
         ]
     });
 
-    var menuLocalTree = new Ext.menu.Menu({
+    var menuRepo = new Ext.menu.Menu({
         items: [
             {
-                text: 'Delete',
+                text: "Delete",
                 handler: function () {
                     deleteSelectedRepos();
                 }
             },
             {
-                text: 'Edit',
+                text: "Edit",
                 handler: function () {
                     var nodes = repoPanel.getSelectionModel().selected.items;
                     if (nodes.length > 1) {
@@ -115,14 +115,14 @@ Ext.onReady(function () {
                     }
                     var node = nodes[0];
                     var path = node.data.url;
-                    Ext.Msg.prompt('Edit', 'Repository url:', function (btn, text) {
-                        if (btn == 'ok') {
+                    Ext.Msg.prompt("Edit", "Repository url:", function (btn, text) {
+                        if (btn == "ok") {
                             var trimmed = text.trim();
                             if (trimmed == "") {
                                 return;
                             }
                             Ext.Ajax.request({
-                                url: 'editRepository',
+                                url: "editRepository",
                                 params: {
                                     oldUrl: path,
                                     newUrl: trimmed
@@ -144,7 +144,7 @@ Ext.onReady(function () {
     var menuBranches = new Ext.menu.Menu({
         items: [
             {
-                text: 'Copy Path',
+                text: "Copy Path",
                 handler: function () {
                     var nodes = rightPanel.getSelectionModel().selected.items;
                     if (nodes.length != 1) {
@@ -152,7 +152,7 @@ Ext.onReady(function () {
                     }
                     var path = nodes[0].getPath("text");
                     Ext.Ajax.request({
-                        url: 'copyPath',
+                        url: "copyPath",
                         timeout: 1000000,
                         params: {
                             path: path
@@ -165,12 +165,12 @@ Ext.onReady(function () {
 
     function deleteSelectedRepos() {
         var nodes = repoPanel.getSelectionModel().selected.items;
-        var repositories = new Array();
+        var repositories = [];
         for (var i = 0; i < nodes.length; i++) {
             repositories.push(nodes[i].data.url)
         }
         Ext.Ajax.request({
-            url: 'deleteRepositories',
+            url: "deleteRepositories",
             params: {
                 repositories: repositories
             },
@@ -183,15 +183,14 @@ Ext.onReady(function () {
         });
     }
 
-    repoPanel.on('itemcontextmenu', function (view, record, item, index, event) {
-        var nodes = repoPanel.getSelectionModel().selected.items;
-        menuLocalTree.showAt(event.getXY());
+    repoPanel.on("itemcontextmenu", function (view, record, item, index, event) {
+        menuRepo.showAt(event.getXY());
         event.stopEvent();
     }, this);
 
     function setRepository(repository, password) {
         Ext.Ajax.request({
-            url: 'setRepository',
+            url: "setRepository",
             timeout: 1000000,
             params: {
                 repository: repository,
@@ -199,11 +198,11 @@ Ext.onReady(function () {
             },
             success: function (response, opts) {
                 var jsonData = Ext.JSON.decode(response.responseText);
-                if (jsonData['badCredentials']) {
+                if (jsonData["badCredentials"]) {
                     var myMsgBox = new Ext.window.MessageBox();
-                    myMsgBox.textField.inputType = 'password';
-                    myMsgBox.prompt('Bad Password', 'Password', function (btn, text) {
-                                if (btn == 'ok') {
+                    myMsgBox.textField.inputType = "password";
+                    myMsgBox.prompt("Bad Password", "Password", function (btn, text) {
+                                if (btn == "ok") {
                                     setRepository(repository, text)
                                 }
                             }
@@ -220,7 +219,7 @@ Ext.onReady(function () {
 
     function newRepository(repository) {
         Ext.Ajax.request({
-            url: 'newRepository',
+            url: "newRepository",
             timeout: 1000000,
             params: {
                 repository: repository
@@ -232,8 +231,8 @@ Ext.onReady(function () {
         });
     }
 
-    var rightPanel = Ext.create('Ext.tree.Panel', {
-        title: 'Tree',
+    var rightPanel = Ext.create("Ext.tree.Panel", {
+        title: "Tree",
         renderTo: Ext.getBody(),
         collapsible: false,
         useArrows: true,
@@ -242,36 +241,36 @@ Ext.onReady(function () {
         multiSelect: false,
         columns: [
             {
-                xtype: 'treecolumn',
-                text: 'Path',
+                xtype: "treecolumn",
+                text: "Path",
                 flex: 2,
                 sortable: true,
-                dataIndex: 'text'
+                dataIndex: "text"
             },
             {
-                text: 'Author',
+                text: "Author",
                 flex: 1,
-                dataIndex: 'author',
+                dataIndex: "author",
                 sortable: true
             },
             {
-                xtype: 'datecolumn',
-                dataIndex: 'date',
+                xtype: "datecolumn",
+                dataIndex: "date",
                 flex: 1,
-                header: 'Date',
+                header: "Date",
                 sortable: true,
-                format: 'd/m/Y H:i'
+                format: "d/m/Y H:i"
             },
             {
-                text: 'Revision',
-                dataIndex: 'revision',
+                text: "Revision",
+                dataIndex: "revision",
                 sortable: true
             }
         ],
-        region: 'center'
+        region: "center"
     });
 
-    rightPanel.on('itemcontextmenu', function (view, record, item, index, event) {
+    rightPanel.on("itemcontextmenu", function (view, record, item, index, event) {
         var nodes = rightPanel.getSelectionModel().selected.items;
         menuBranches.showAt(event.getXY());
         event.stopEvent();
@@ -279,7 +278,7 @@ Ext.onReady(function () {
 
     new Ext.Viewport({
         renderTo: Ext.getBody(),
-        layout: 'border',
+        layout: "border",
         defaults: {
             split: true,
             floatable: false
@@ -287,22 +286,22 @@ Ext.onReady(function () {
         padding: "3 3 3 3",
         items: [
             {
-                region: 'north',
+                region: "north",
                 border: false,
                 split: false,
                 defaults: {
-                    xtype: 'textfield',
-                    anchor: '100%'
+                    xtype: "textfield",
+                    anchor: "100%"
                 },
                 tbar: [
                     {
-                        text: 'New Connection',
-                        id: 'btnConnect',
+                        text: "New Connection",
+                        id: "btnConnect",
                         formBind: true,
-                        style: 'background-color: #D5E2F2;border:1px solid #A9BFD3;vertical-align:middle;padding: 2px;',
+                        style: "background-color: #D5E2F2;border:1px solid #A9BFD3;vertical-align:middle;padding: 2px;",
                         handler: function () {
-                            Ext.Msg.prompt('New Repository', 'Please enter repository url:', function (btn, text) {
-                                if (btn == 'ok' && text) {
+                            Ext.Msg.prompt("New Repository", "Please enter repository url:", function (btn, text) {
+                                if (btn == "ok" && text) {
                                     newRepository(text)
                                 }
                             });

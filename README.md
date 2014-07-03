@@ -32,13 +32,20 @@ In the directory that contains the build.gradle run
      gradle install
      
 It will build, test and install application to *~/svnrepoviewer* folder.
- 
 
 ### To run
 
 Start SVNRepoViewer: 
 
     ~/svnrepoviewer/bin/svnrepoviewer
+    
+### Fat Jar
+
+To build one jar containing all dependencies run:
+
+    gradle build
+
+It will create fat jar in *build/libs* folder. To start SVNRepoViewer run: *java -jar build/libs/svnrepoviewer-0.1.jar*    
 
 ## License 
 GNU GPLv3.
