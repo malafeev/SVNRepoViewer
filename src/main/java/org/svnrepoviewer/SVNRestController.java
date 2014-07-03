@@ -2,7 +2,6 @@ package org.svnrepoviewer;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.svnrepoviewer.config.ConfigDao;
-import org.svnrepoviewer.config.Repository;
+import org.svnrepoviewer.dao.RepositoryDao;
+import org.svnrepoviewer.domain.Repository;
 import org.svnrepoviewer.svn.Connection;
 import org.svnrepoviewer.svn.ConnectionState;
 import org.svnrepoviewer.svn.Node;
@@ -26,7 +25,7 @@ public class SVNRestController {
     @Autowired
     private Connection connection;
     @Autowired
-    private ConfigDao configDao;
+    private RepositoryDao repositoryDao;
     private Clipboard clpbrd;
 
 
@@ -41,8 +40,8 @@ public class SVNRestController {
 
     @ResponseBody
     @RequestMapping(value = "/repositories", method = RequestMethod.GET, produces = PRODUCE_TYPE)
-    public Set<Repository> getRepositories() {
-        return configDao.getRepositories();
+    public List<Repository> getRepositories() {
+        return repositoryDao.getAll();
     }
 
     @ResponseBody
@@ -59,27 +58,27 @@ public class SVNRestController {
         if (repoUrl.trim().isEmpty()) {
             return;
         }
-        Repository repository = new Repository();
-        repository.setUrl(repoUrl);
-        if (configDao.addRepository(repository)) {
-            configDao.save();
+        Repository repository = repositoryDao.get(repoUrl);
+        if (repository == null) {
+            repository = new Repository();
+            repository.setUrl(repoUrl);
+            repositoryDao.save(repository);
         }
     }
 
     @ResponseBody
     @RequestMapping(value = "/editRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void editRepository(@RequestParam("oldUrl") String oldUrl, @RequestParam("newUrl") String newUrl) {
-        Repository repository = configDao.findRepositoriesByUrl(oldUrl);
+        Repository repository = repositoryDao.get(oldUrl);
         repository.setUrl(newUrl);
-        configDao.save();
+        repositoryDao.save(repository);
     }
 
     @RequestMapping(value = "deleteRepositories", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void deleteRepositories(@RequestParam("repositories") String[] repoUrls) {
         for (String repoUrl : repoUrls) {
-            configDao.deleteRepositoryByUrl(repoUrl);
+            repositoryDao.delete(repositoryDao.get(repoUrl));
         }
-        configDao.save();
     }
 
     @RequestMapping(value = "copyPath", method = RequestMethod.POST, produces = PRODUCE_TYPE)

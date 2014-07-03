@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.TimeUnit;
 
+import javax.sql.DataSource;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -19,6 +21,9 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.svnrepoviewer.fx.Main;
 
 /**
@@ -26,6 +31,8 @@ import org.svnrepoviewer.fx.Main;
  */
 @ComponentScan
 @EnableAutoConfiguration
+@EnableJpaRepositories
+@EnableTransactionManagement
 public class SVNApplication {
     private static final Logger logger = LoggerFactory.getLogger("stdout");
     private static int port;
@@ -37,6 +44,16 @@ public class SVNApplication {
         factory.setPort(port);
         factory.setSessionTimeout(0, TimeUnit.MINUTES);
         return factory;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        DriverManagerDataSource dataSource = new DriverManagerDataSource();
+        dataSource.setDriverClassName("org.h2.Driver");
+        dataSource.setUrl("jdbc:h2:~/.svnrepoviewer/db");
+        dataSource.setUsername("user");
+        dataSource.setPassword("pwd");
+        return dataSource;
     }
 
     public static void main(String[] args) throws InterruptedException {
