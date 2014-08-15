@@ -48,20 +48,22 @@ public class SVNRestController {
     @RequestMapping(value = "/setRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public ConnectionState setRepository(@RequestParam("repository") String repoUrl, @RequestParam("password") String password) {
         Repository repository = new Repository();
-        repository.setUrl(repoUrl);
-        return connection.connect(repoUrl, password);
+        String repoUrlTrimmed = repoUrl.trim();
+        repository.setUrl(repoUrlTrimmed);
+        return connection.connect(repoUrlTrimmed, password);
     }
 
     @ResponseBody
     @RequestMapping(value = "/newRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void newRepository(@RequestParam("repository") String repoUrl) {
-        if (repoUrl.trim().isEmpty()) {
+        String repoUrlTrimmed = repoUrl.trim();
+        if (repoUrlTrimmed.isEmpty()) {
             return;
         }
         Repository repository = repositoryDao.get(repoUrl);
         if (repository == null) {
             repository = new Repository();
-            repository.setUrl(repoUrl);
+            repository.setUrl(repoUrlTrimmed);
             repositoryDao.save(repository);
         }
     }
@@ -69,15 +71,15 @@ public class SVNRestController {
     @ResponseBody
     @RequestMapping(value = "/editRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void editRepository(@RequestParam("oldUrl") String oldUrl, @RequestParam("newUrl") String newUrl) {
-        Repository repository = repositoryDao.get(oldUrl);
-        repository.setUrl(newUrl);
+        Repository repository = repositoryDao.get(oldUrl.trim());
+        repository.setUrl(newUrl.trim());
         repositoryDao.save(repository);
     }
 
     @RequestMapping(value = "deleteRepositories", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void deleteRepositories(@RequestParam("repositories") String[] repoUrls) {
         for (String repoUrl : repoUrls) {
-            repositoryDao.delete(repositoryDao.get(repoUrl));
+            repositoryDao.delete(repositoryDao.get(repoUrl.trim()));
         }
     }
 
