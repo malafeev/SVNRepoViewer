@@ -13,17 +13,27 @@ Can be also accessed via "http://localhost:\<port\>"
 
 If port is not specified then random free port is used.
 
-## Building from Source
-
 ### Prerequisites
 
 - JDK 8
-- Gradle 
+- Gradle (only needed if building from source)
 
 ### Supported OS
 
 - Linux
 - OS X
+
+## To Run
+
+Download svnrepoviewer-XX.zip
+
+https://github.com/malafeev/SVNRepoViewer/releases
+
+Start SVNRepoViewer
+
+     ./bin/svnrepoviewer
+
+## Building from Source
 
 ### Installation
 
