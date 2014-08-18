@@ -47,25 +47,21 @@ public class SVNRestController {
     @ResponseBody
     @RequestMapping(value = "/setRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public ConnectionState setRepository(@RequestParam("repository") String repoUrl, @RequestParam("password") String password) {
-        Repository repository = new Repository();
         String repoUrlTrimmed = repoUrl.trim();
-        repository.setUrl(repoUrlTrimmed);
-        return connection.connect(repoUrlTrimmed, password);
-    }
-
-    @ResponseBody
-    @RequestMapping(value = "/newRepository", method = RequestMethod.POST, produces = PRODUCE_TYPE)
-    public void newRepository(@RequestParam("repository") String repoUrl) {
-        String repoUrlTrimmed = repoUrl.trim();
-        if (repoUrlTrimmed.isEmpty()) {
-            return;
-        }
         Repository repository = repositoryDao.get(repoUrl);
+        boolean isNew = false;
         if (repository == null) {
             repository = new Repository();
             repository.setUrl(repoUrlTrimmed);
+            isNew = true;
+        }
+
+        ConnectionState connectionState = connection.connect(repoUrlTrimmed, password);
+        if (isNew && connectionState.isConnected()) {
             repositoryDao.save(repository);
         }
+
+        return connectionState;
     }
 
     @ResponseBody

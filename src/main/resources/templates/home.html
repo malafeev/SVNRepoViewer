@@ -77,7 +77,7 @@ Ext.onReady(function () {
         listeners: {
             itemdblclick: function (dv, record, item, index, e) {
                 var repo = repoStore.getAt(index).data.url;
-                setRepository(repo, null);
+                setRepository(repo, null, false);
             }
         }
     });
@@ -184,7 +184,7 @@ Ext.onReady(function () {
         event.stopEvent();
     }, this);
 
-    function setRepository(repository, password) {
+    function setRepository(repository, password, isNew) {
         Ext.Ajax.request({
             url: "setRepository",
             timeout: 1000000,
@@ -199,30 +199,19 @@ Ext.onReady(function () {
                     myMsgBox.textField.inputType = "password";
                     myMsgBox.prompt("Bad Password", "Password", function (btn, text) {
                                 if (btn == "ok") {
-                                    setRepository(repository, text)
+                                    setRepository(repository, text, false);
                                 }
                             }
                     );
                 } else {
+                    if (isNew) {
+                        repoStore.load();
+                    }
                     var node = svnStore.getNodeById("/");
                     if (node) {
                         svnStore.load({node: node});
                     }
                 }
-            }
-        });
-    }
-
-    function newRepository(repository) {
-        Ext.Ajax.request({
-            url: "newRepository",
-            timeout: 1000000,
-            params: {
-                repository: repository
-            },
-            success: function (response, opts) {
-                repoStore.load();
-                setRepository(repository, null);
             }
         });
     }
@@ -298,7 +287,7 @@ Ext.onReady(function () {
                         handler: function () {
                             Ext.Msg.prompt("New Repository", "Please enter repository url:", function (btn, text) {
                                 if (btn == "ok" && text) {
-                                    newRepository(text)
+                                    setRepository(text, null, true);
                                 }
                             });
 

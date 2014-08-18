@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.PreDestroy;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -31,7 +33,7 @@ public class Connection {
     private boolean connected;
 
     public ConnectionState connect(String repoUrl, String password) {
-        connected = false;
+        closeSession();
         this.repoUrl = repoUrl;
         ConnectionState connectionState = new ConnectionState();
         if (Strings.isNullOrEmpty(repoUrl)) {
@@ -42,7 +44,7 @@ public class Connection {
         try {
             repository = SVNRepositoryFactory.create(SVNURL.parseURIEncoded(SVNEncodingUtil.autoURIEncode(repoUrl)));
         } catch (SVNException e) {
-            logger.error("failed to init repo", e);
+            logger.debug("failed to init repo", e);
             return connectionState;
         }
         ISVNAuthenticationManager authManager;
@@ -81,6 +83,7 @@ public class Connection {
             return connectionState;
         }
         connected = true;
+        connectionState.setConnected(true);
         return connectionState;
     }
 
@@ -131,4 +134,13 @@ public class Connection {
     public String getRepoUrl() {
         return repoUrl;
     }
+
+    @PreDestroy
+    public void closeSession() {
+        if (repository != null) {
+            repository.closeSession();
+            connected = false;
+        }
+    }
+
 }
