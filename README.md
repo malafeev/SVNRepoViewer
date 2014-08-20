@@ -23,6 +23,16 @@ If port is not specified then random free port is used.
 - Linux
 - OS X
 
+## To Run
+
+Download svnrepoviewer-XX.zip
+
+https://github.com/malafeev/SVNRepoViewer/releases
+
+Start SVNRepoViewer
+
+     ./bin/svnrepoviewer
+
 ## Building from Source
 
 ### Installation
