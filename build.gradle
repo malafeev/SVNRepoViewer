@@ -13,7 +13,7 @@ apply plugin: 'java'
 apply plugin: 'spring-boot'
 
 ext {
-    springBootVersion = "1.1.5.RELEASE"
+    springBootVersion = "1.1.6.RELEASE"
     userHome = System.getProperty("user.home")
 }
 
@@ -47,7 +47,7 @@ configurations {
 
 dependencies {
     compile 'org.tmatesoft.svnkit:svnkit:1.8.6'
-    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.guava:guava:18.0'
     compile 'org.webjars:extjs:5.0.1'
     compile 'commons-cli:commons-cli:1.2'
 
