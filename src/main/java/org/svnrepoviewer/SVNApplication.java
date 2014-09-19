@@ -57,7 +57,9 @@ public class SVNApplication {
     }
 
     public static void main(String[] args) throws InterruptedException {
-        parseCLI(args);
+        if (!parseCLI(args)) {
+            return;
+        }
         ConfigurableApplicationContext context = SpringApplication.run(SVNApplication.class, args);
         logger.info("started server on port {}", port);
         if (!quiet) {
@@ -66,25 +68,25 @@ public class SVNApplication {
         }
     }
 
-    private static void parseCLI(String[] args) {
+    private static boolean parseCLI(String[] args) {
         Options options = new Options();
         options.addOption("p", "port", true, "port number");
         options.addOption("q", "quiet", false, "don't open JavaFX browser");
         options.addOption("h", "help", false, "help");
 
         CommandLineParser parser = new PosixParser();
-        CommandLine cmd = null;
+        CommandLine cmd;
         try {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             logger.error(e.getMessage());
             printUsage(options);
-            System.exit(-1);
+            return false;
         }
 
         if (cmd.hasOption("h")) {
             printUsage(options);
-            System.exit(0);
+            return false;
         }
 
         String portStr = cmd.getOptionValue("p");
@@ -93,17 +95,18 @@ public class SVNApplication {
                 port = Integer.parseInt(portStr);
             } catch (NumberFormatException e) {
                 logger.error("cannot parse port {}", portStr);
-                System.exit(-1);
+                return false;
             }
             if (port < 1 || port > 65534) {
                 logger.error("port should be in range [1, 65534]");
-                System.exit(-1);
+                return false;
             }
         } else {
             port = findFreePort();
         }
 
         quiet = cmd.hasOption("q");
+        return true;
     }
 
     private static int findFreePort() {
