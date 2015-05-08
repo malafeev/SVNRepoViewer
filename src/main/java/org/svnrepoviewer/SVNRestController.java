@@ -81,7 +81,11 @@ public class SVNRestController {
 
     @RequestMapping(value = "copyPath", method = RequestMethod.POST, produces = PRODUCE_TYPE)
     public void copyPath(@RequestParam("path") String path) {
-        String fullPath = connection.getRepoUrl() + path.replaceAll("/[/]+", "/");
+        String mainRepoPath = connection.getRepoUrl();
+        if (mainRepoPath.endsWith("/")) {
+            mainRepoPath = mainRepoPath.replaceAll("/+$", "");
+        }
+        String fullPath = mainRepoPath + path.replaceAll("/[/]+", "/");
         Platform.runLater(() -> {
             if (clpbrd == null) {
                 clpbrd = Clipboard.getSystemClipboard();

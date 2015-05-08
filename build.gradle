@@ -4,7 +4,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.1.RELEASE")
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.2.3.RELEASE")
     }
 }
 
@@ -12,7 +12,7 @@ apply plugin: 'java'
 apply plugin: 'spring-boot'
 
 ext {
-    springBootVersion = "1.2.1.RELEASE"
+    springBootVersion = "1.2.3.RELEASE"
     userHome = System.getProperty("user.home")
 }
 
@@ -42,7 +42,7 @@ configurations {
 }
 
 dependencies {
-    compile 'org.tmatesoft.svnkit:svnkit:1.8.7'
+    compile 'org.tmatesoft.svnkit:svnkit:1.8.9'
     compile 'com.google.guava:guava:18.0'
     compile 'org.webjars:extjs:5.1.0'
     compile 'commons-cli:commons-cli:1.2'
@@ -52,11 +52,11 @@ dependencies {
 
     compile "org.thymeleaf:thymeleaf-spring4:2.1.4.RELEASE"
 
-    compile 'com.h2database:h2:1.4.184'
+    compile 'com.h2database:h2:1.4.187'
 
     //Test:
-    testCompile 'org.testng:testng:6.8.13'
-    testCompile 'org.mockito:mockito-all:1.9.5'
+    testCompile 'org.testng:testng:6.8.21'
+    testCompile 'org.mockito:mockito-all:1.10.19'
 }
 
 test {
@@ -90,4 +90,4 @@ task install {
     }
 }
 
-install.dependsOn clean, test, installApp
+install.dependsOn clean, test, installDist

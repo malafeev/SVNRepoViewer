@@ -49,7 +49,7 @@ public class Connection {
         }
         ISVNAuthenticationManager authManager;
         if (!Strings.isNullOrEmpty(password)) {
-            authManager = SVNWCUtil.createDefaultAuthenticationManager(System.getProperty("user.name"), password);
+            authManager = SVNWCUtil.createDefaultAuthenticationManager(System.getProperty("user.name"), password.toCharArray());
         } else {
             authManager = SVNWCUtil.createDefaultAuthenticationManager();
         }

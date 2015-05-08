@@ -73,6 +73,7 @@ public class SVNApplication {
         options.addOption("p", "port", true, "port number");
         options.addOption("q", "quiet", false, "don't open JavaFX browser");
         options.addOption("h", "help", false, "help");
+        //options.addOption("s", "spring.output.ansi.enabled", true, "spring boot output");
 
         CommandLineParser parser = new PosixParser();
         CommandLine cmd;
