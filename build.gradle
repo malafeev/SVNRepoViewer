@@ -42,9 +42,9 @@ configurations {
 }
 
 dependencies {
-    compile 'org.tmatesoft.svnkit:svnkit:1.8.9'
+    compile 'org.tmatesoft.svnkit:svnkit:1.8.10'
     compile 'com.google.guava:guava:18.0'
-    compile 'org.webjars:extjs:5.1.0'
+    compile 'org.webjars:extjs:5.1.1'
     compile 'commons-cli:commons-cli:1.2'
 
     compile "org.springframework.boot:spring-boot-starter-web:$springBootVersion"
